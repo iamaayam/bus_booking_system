@@ -32,23 +32,26 @@
             <div class="bus_seat" onclick="seatClick(this)" id="4">
 
             </div>
-            <button id = "submit" name ="submit" onclick="">Submit</button>
+            <button id = "submit" name ="submit" onclick="seatSubmit()">Submit</button>
         </div>
     </div>
 
     <script>
-        const seatSelect = [];
+        let seatSelect = [];
         function seatClick(Clicked){
             const seatId = Clicked.id;
             const change = document.getElementById(seatId);
             if (change.style.backgroundColor == "yellow"){
                 change.style.backgroundColor = "white";
-                seatSelect.pop(seatId);
+                seatSelect = seatSelect.filter(id => id !== seatId);
+
+                console.log(seatSelect);
             }
 
             else{
                 change.style.backgroundColor = "yellow";
                 seatSelect.push(seatId);
+                console.log(seatSelect);
             }
             
         }
@@ -58,6 +61,8 @@
                 if (seat){
                     seat.style.backgroundColor = "red";
                 }
+                text = "you have successfully booked seat" + seatSelect;
+                alert(text);
             });
         }
     </script>
