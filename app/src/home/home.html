@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .bus_seat {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #000;
+            margin: 10px;
+            display: inline-block;
+        }
+
+    </style>
+</head>
+<body>
+    <div style="display: flex;flex-direction: column;">
+        <h1 style="display: flex; justify-content: center;">BUS BOOKING SYSTEM</h1>
+
+        <div>
+            <div class="bus_seat" onclick="seatClick(this)" id ="1">
+
+            </div>
+            <div class="bus_seat"onclick="seatClick(this)" id ="2">
+
+            </div>
+            <div class="bus_seat"onclick="seatClick(this)" id="3">
+                
+            </div>
+            <div class="bus_seat" onclick="seatClick(this)" id="4">
+
+            </div>
+            <button id = "submit" name ="submit" onclick="">Submit</button>
+        </div>
+    </div>
+
+    <script>
+        const seatSelect = [];
+        function seatClick(Clicked){
+            const seatId = Clicked.id;
+            const change = document.getElementById(seatId);
+            if (change.style.backgroundColor == "yellow"){
+                change.style.backgroundColor = "white";
+                seatSelect.pop(seatId);
+            }
+
+            else{
+                change.style.backgroundColor = "yellow";
+                seatSelect.push(seatId);
+            }
+            
+        }
+        function seatSubmit(){
+            seatSelect.forEach(seatID => {
+                const seat = document.getElementById(seatID);
+                if (seat){
+                    seat.style.backgroundColor = "red";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
