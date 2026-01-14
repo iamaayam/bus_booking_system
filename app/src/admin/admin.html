@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard — Bus Booking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --accent:#0f172a;
+      --accent-2:#0ea5a4;
+      --success:#10b981;
+      --danger:#ef4444;
+      --glass: rgba(15,23,42,0.06);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:#0f172a}
+
+    /* Layout */
+    .app{
+      display:flex;min-height:100vh;
+    }
+    aside.sidebar{
+      width:260px;background:linear-gradient(180deg,#071028 0%, #0f172a 100%);color:#fff;padding:22px;display:flex;flex-direction:column;gap:18px
+    }
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{width:44px;height:44px;border-radius:8px;background:linear-gradient(90deg,#06b6d4,#0ea5a4);display:flex;align-items:center;justify-content:center;font-weight:700;color:#042027}
+    .brand h1{font-size:16px;margin:0}
+    nav.menu{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+    nav a{display:flex;gap:10px;align-items:center;padding:10px;border-radius:10px;color:#bcd2d9;text-decoration:none}
+    nav a.active, nav a:hover{background:rgba(255,255,255,0.06);color:#fff}
+    nav a .ico{width:18px;text-align:center}
+
+    .bottom-info{margin-top:auto;font-size:13px;color:#9aa6b2}
+
+    main.content{flex:1;padding:28px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .topbar h2{margin:0;font-size:20px}
+    .search{display:flex;gap:8px;align-items:center}
+    .search input{padding:8px 12px;border-radius:8px;border:1px solid #e6edf3;background:var(--card)}
+
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;margin-top:20px}
+    .card{grid-column:span 3;background:var(--card);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(11,15,29,0.06)}
+    .big{grid-column:span 8}
+    .full{grid-column:span 12}
+    .card h3{margin:0;font-size:13px;color:var(--muted)}
+    .metric{font-size:22px;font-weight:700;margin-top:8px}
+
+    /* Analytics cards */
+    .charts{display:flex;gap:18px}
+    canvas{background:transparent}
+
+    /* User management */
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;text-align:left;border-bottom:1px solid #eef2f6}
+    th{font-size:13px;color:var(--muted)}
+    .badge{padding:6px 10px;border-radius:999px;font-size:12px}
+    .badge.active{background:rgba(16,185,129,0.12);color:var(--success)}
+    .badge.blocked{background:rgba(239,68,68,0.08);color:var(--danger)}
+
+    .btn{display:inline-block;padding:8px 12px;border-radius:8px;background:#06122a;color:#fff;text-decoration:none;border:none;cursor:pointer}
+    .btn.ghost{background:transparent;color:var(--accent)}
+
+    /* Responsive */
+    @media (max-width:900px){
+      aside.sidebar{display:none}
+      .grid{grid-template-columns:repeat(6,1fr)}
+      .card{grid-column:span 6}
+      .big{grid-column:span 6}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">BB</div>
+        <div>
+          <h1 style="font-size:14px;margin:0">CX Bus Admin</h1>
+          <div style="font-size:12px;color:#9aa6b2">Administrator</div>
+        </div>
+      </div>
+
+      <nav class="menu">
+        <a href="#dashboard" class="active" data-section="dashboard"><span class="ico">📊</span>Dashboard</a>
+        <a href="#analytics" data-section="analytics"><span class="ico">📈</span>Analytics</a>
+        <a href="#users" data-section="users"><span class="ico">👥</span>User Management</a>
+      </nav>
+
+      <div class="bottom-info">
+        <div>Logged in as <strong>admin@cxmotor</strong></div>
+        <div style="margin-top:8px">Version 1.0 • Local</div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="topbar">
+        <h2 id="pageTitle">Dashboard</h2>
+        <div class="search">
+          <input id="globalSearch" placeholder="Search users, bookings..." />
+          <button class="btn" onclick="showSection('users')">Manage Users</button>
+        </div>
+      </div>
+
+      <!-- Dashboard grid -->
+      <div id="dashboard" class="grid section">
+        <div class="card">
+          <h3>Total Bookings</h3>
+          <div class="metric" id="totalBookings">1,234</div>
+          <div style="color:var(--muted);font-size:13px">Last 30 days</div>
+        </div>
+
+        <div class="card">
+          <h3>Revenue (NPR)</h3>
+          <div class="metric" id="revenue">₨ 456,700</div>
+          <div style="color:var(--muted);font-size:13px">This month</div>
+        </div>
+
+        <div class="card">
+          <h3>Active Buses</h3>
+          <div class="metric" id="activeBuses">28</div>
+          <div style="color:var(--muted);font-size:13px">Across routes</div>
+        </div>
+
+        <div class="card">
+          <h3>Registered Users</h3>
+          <div class="metric" id="userCount">542</div>
+          <div style="color:var(--muted);font-size:13px">Total customers</div>
+        </div>
+
+        <div class="card big">
+          <h3>Recent Bookings</h3>
+          <div style="margin-top:12px">
+            <table>
+              <thead><tr><th>Booking ID</th><th>Route</th><th>Date</th><th>Seats</th><th>Amount</th></tr></thead>
+              <tbody id="recentBookings"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Bookings by Route</h3>
+          <canvas id="barChart" width="400" height="250"></canvas>
+        </div>
+
+        <div class="card">
+          <h3>Status Breakdown</h3>
+          <canvas id="pieChart" width="300" height="250"></canvas>
+        </div>
+
+      </div>
+
+      <!-- Analytics section -->
+      <div id="analytics" class="grid section" style="display:none">
+        <div class="card full">
+          <h3>Traffic & Revenue Overview</h3>
+          <div style="margin-top:12px">
+            <canvas id="lineChart" width="800" height="250"></canvas>
+          </div>
+        </div>
+
+        <div class="card full">
+          <h3>Top Routes</h3>
+          <table>
+            <thead><tr><th>Route</th><th>Bookings</th><th>Revenue</th></tr></thead>
+            <tbody id="topRoutes"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Users management -->
+      <div id="users" class="grid section" style="display:none">
+        <div class="card full">
+          <h3>User Management</h3>
+          <div style="margin-top:12px">
+            <input id="userSearch" placeholder="Search by name or email" style="padding:8px;border-radius:8px;border:1px solid #e6edf3;width:30%;margin-bottom:12px" />
+            <table>
+              <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="userTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ChartsJS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // --- Dummy data ---
+    const dummy = {
+      totalBookings: 1234,
+      revenue: 456700,
+      activeBuses: 28,
+      userCount: 542,
+      recentBookings: [
+        {id: 'BK-1001', route: 'KTM → PKR', date: '2025-12-20', seats: 2, amount: 2400},
+        {id: 'BK-1002', route: 'PKR → KTM', date: '2025-12-20', seats: 1, amount: 1200},
+        {id: 'BK-1003', route: 'BIR → KTM', date: '2025-12-19', seats: 3, amount: 3600},
+        {id: 'BK-1004', route: 'DHA → LUK', date: '2025-12-18', seats: 1, amount: 1200}
+      ],
+      bookingsByRoute: {
+        labels: ['KTM→PKR','PKR→KTM','BIR→KTM','DHA→LUK'],
+        data: [320, 210, 150, 90]
+      },
+      statusBreakdown: {labels:['Confirmed','Pending','Cancelled'], data:[820,300,114]},
+      traffic: {
+        labels: ['Dec 1','Dec 5','Dec 10','Dec 15','Dec 20','Dec 25'],
+        bookings: [45, 78, 90, 120, 140, 160],
+        revenue: [5400, 7800, 9000, 12000, 14200, 16000]
+      },
+      topRoutes: [
+        {route:'KTM→PKR', bookings:320, revenue:384000},
+        {route:'PKR→KTM', bookings:210, revenue:252000},
+        {route:'BIR→KTM', bookings:150, revenue:180000}
+      ],
+      users: [
+        {id:1, name:'Aayam Shrestha', email:'aayam@example.com', role:'customer', active:true},
+        {id:2, name:'Sita Rana', email:'sita@example.com', role:'customer', active:true},
+        {id:3, name:'Ram Thapa', email:'ram@example.com', role:'staff', active:false},
+        {id:4, name:'Lekha Rai', email:'lekha@example.com', role:'customer', active:true}
+      ]
+    };
+
+    // --- Populate simple metrics and tables ---
+    document.getElementById('totalBookings').innerText = dummy.totalBookings.toLocaleString();
+    document.getElementById('revenue').innerText = '₨ ' + dummy.revenue.toLocaleString();
+    document.getElementById('activeBuses').innerText = dummy.activeBuses;
+    document.getElementById('userCount').innerText = dummy.userCount;
+
+    const rb = document.getElementById('recentBookings');
+    dummy.recentBookings.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.id}</td><td>${r.route}</td><td>${r.date}</td><td>${r.seats}</td><td>₨ ${r.amount.toLocaleString()}</td>`;
+      rb.appendChild(tr);
+    });
+
+    const troutes = document.getElementById('topRoutes');
+    dummy.topRoutes.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.route}</td><td>${r.bookings}</td><td>₨ ${r.revenue.toLocaleString()}</td>`;
+      troutes.appendChild(tr);
+    });
+
+    // User table
+    function renderUsers(filter=''){
+      const tbody = document.getElementById('userTable');
+      tbody.innerHTML = '';
+      const users = dummy.users.filter(u => (u.name + u.email).toLowerCase().includes(filter.toLowerCase()));
+      users.forEach((u, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${u.id}</td>
+          <td>${u.name}</td>
+          <td>${u.email}</td>
+          <td>${u.role}</td>
+          <td>${u.active ? '<span class="badge active">Active</span>' : '<span class="badge blocked">Blocked</span>'}</td>
+          <td>
+            <button class="btn ghost" onclick="editUser(${u.id})">Edit</button>
+            <button class="btn" onclick="toggleBlock(${u.id})">${u.active ? 'Block' : 'Unblock'}</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    renderUsers();
+
+    document.getElementById('userSearch').addEventListener('input', (e)=> renderUsers(e.target.value));
+    document.getElementById('globalSearch').addEventListener('input', (e)=> {
+      const q = e.target.value.trim();
+      if(!q) return;
+      showSection('users');
+      renderUsers(q);
+    });
+
+    function editUser(id){
+      const u = dummy.users.find(x=>x.id===id);
+      if(!u) return alert('User not found');
+      const name = prompt('Edit name', u.name);
+      if(name) { u.name = name; renderUsers(); }
+    }
+    function toggleBlock(id){
+      const u = dummy.users.find(x=>x.id===id);
+      if(!u) return;
+      u.active = !u.active; renderUsers();
+    }
+
+    // --- Charts ---
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    const barChart = new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: dummy.bookingsByRoute.labels,
+        datasets: [{
+          label: 'Bookings',
+          data: dummy.bookingsByRoute.data,
+          backgroundColor: ['#0ea5a4','#06b6d4','#7c3aed','#f97316']
+        }]
+      },
+      options: {responsive:true,plugins:{legend:{display:false}}}
+    });
+
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    const pieChart = new Chart(pieCtx, {
+      type: 'pie',
+      data: {labels: dummy.statusBreakdown.labels, datasets:[{data:dummy.statusBreakdown.data, backgroundColor:['#10b981','#f59e0b','#ef4444']}]},
+      options:{responsive:true}
+    });
+
+    const lineCtx = document.getElementById('lineChart').getContext('2d');
+    const lineChart = new Chart(lineCtx, {
+      type:'line',
+      data:{labels: dummy.traffic.labels, datasets:[{label:'Bookings', data: dummy.traffic.bookings, tension:0.3, fill:false, borderColor:'#0ea5a4'},{label:'Revenue', data: dummy.traffic.revenue, tension:0.3, fill:false, borderColor:'#7c3aed'}]},
+      options:{responsive:true}
+    });
+
+    // Navigation between sections
+    function showSection(id){
+      document.querySelectorAll('.section').forEach(s=> s.style.display='none');
+      const el = document.getElementById(id);
+      if(el) el.style.display = '';
+      document.getElementById('pageTitle').innerText = id.charAt(0).toUpperCase() + id.slice(1);
+      document.querySelectorAll('nav.menu a').forEach(a=> a.classList.toggle('active', a.dataset.section===id));
+      window.location.hash = id;
+    }
+
+    // link clicks
+    document.querySelectorAll('nav.menu a').forEach(a=>{
+      a.addEventListener('click', (e)=>{
+        e.preventDefault();
+        showSection(a.dataset.section);
+      });
+    });
+
+    // show initial section by hash
+    const initial = window.location.hash.replace('#','') || 'dashboard';
+    showSection(initial);
+
+  </script>
+</body>
+</html>

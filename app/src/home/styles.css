@@ -1,0 +1,120 @@
+/* Reset & base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: #f4f6f8;
+  color: #333;
+}
+
+/* Header */
+header {
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  color: white;
+  padding: 22px;
+  text-align: center;
+  font-size: 26px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Main container */
+.container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+/* Bus grid */
+.buses {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 25px;
+}
+
+/* Individual bus card */
+.bus_available {
+  background: white;
+  border-radius: 14px;
+  padding: 25px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.bus_available::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  background: #8b8b8b;
+}
+
+.bus_available:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.15);
+}
+
+/* Bus title */
+.bus_available h1 {
+  font-size: 20px;
+  margin-bottom: 12px;
+  color: #131313;
+}
+
+/* Bus details */
+.bus_available p {
+  margin-bottom: 8px;
+  font-size: 14.5px;
+  color: #555;
+}
+
+/* Price highlight */
+.bus_available p:last-of-type {
+  font-weight: bold;
+  color: #111;
+}
+
+/* Buy button */
+.bus_available button {
+  margin-top: 15px;
+  width: 100%;
+  padding: 12px;
+  background: #919191;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.15s ease;
+}
+
+.bus_available button:hover {
+  background: #d3d3d3;
+  transform: scale(1.02);
+}
+
+.bus_available button:active {
+  transform: scale(0.98);
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+  header {
+    font-size: 22px;
+    padding: 18px;
+  }
+
+  .bus_available h1 {
+    font-size: 18px;
+  }
+}

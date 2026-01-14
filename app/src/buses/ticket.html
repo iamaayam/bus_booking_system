@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bus Booking System</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+    }
+
+    /* Header */
+    header {
+      background: #000;
+      color: #fff;
+      padding: 15px;
+      text-align: center;
+      font-size: 22px;
+    }
+
+    /* Main container */
+    .container {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    /* Bus box */
+    .bus-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      width: 350px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .bus-title {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    /* Seats layout */
+    .seats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      justify-items: center;
+      margin-bottom: 20px;
+    }
+
+    .bus_seat {
+      width: 50px;
+      height: 50px;
+      border: 2px solid #000;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+    }
+
+    /* Seat states */
+    .available {
+      background: #fff;
+    }
+
+    .selected {
+      background: yellow;
+    }
+
+    .booked {
+      background: red;
+      cursor: not-allowed;
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .legend div {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .legend span {
+      width: 15px;
+      height: 15px;
+      display: inline-block;
+      border: 1px solid #000;
+    }
+
+    /* Button */
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background: #333;
+    }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 15px;
+      color: #000;
+      
+    }
+    .popup {
+  display: none; /* Initially hidden */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 400px;
+  text-align: center;
+  position: relative;
+}
+.popup-content button{
+  margin-top: 7px;
+}
+.popup .close {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.payment_container {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.payment_option {
+  background-color: #f0f0f0;
+  padding: 15px;
+  border-radius: 5px;
+  width: 100px;
+  text-align: center;
+}
+
+.payment_option:hover {
+  background-color: #ddd;
+}
+  </style>
+</head>
+<body>
+
+<header>
+  BUS BOOKING SYSTEM
+</header>
+
+<div class="container">
+  <div class="bus-box">
+
+    <div class="bus-title">
+      Kathmandu → Pokhara <br>
+      <small>Deluxe Bus | 7:00 AM</small>
+    </div>
+
+    
+    <div class="legend">
+      <div><span style="background:white"></span> Available</div>
+      <div><span style="background:yellow"></span> Selected</div>
+      <div><span style="background:red"></span> Booked</div>
+    </div>
+
+    <!-- Seats -->
+    <div class="seats">
+      <div class="bus_seat available" onclick="seatClick(this)" id="1">1</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="2">2</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="3">3</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="4">4</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="5">5</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="6">6</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="7">7</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="8">8</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="9">9</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="10">10</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="11">11</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="12">12</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="13">13</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="14">14</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="15">15</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="16">16</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="17">17</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="18">18</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="19">19</div>
+      <div class="bus_seat available" onclick="seatClick(this)" id="20">20</div>
+    </div>
+
+    <button onclick="seatSubmit()">Confirm Booking</button>
+    <a class ="back-link" href="/">Go back ← </a>
+  </div>
+</div>
+<div class="popup" id="popup">
+  <div class="popup-content">
+    <span class="close" onclick="closePopup()">&times;</span>
+    <h2>Ticket Purchase</h2>
+    <div class="payment_container">
+      <div class="payment_option">
+        <h3>ESEWA</h3>
+      </div>
+      <div class="payment_option">
+        <h3>BANK TRANSFER</h3>
+      </div>
+      <div class="payment_option">
+        <h3>Phone PAY</h3>
+      </div>
+    </div>
+    <p id="booking-info">Please select a payment method.</p>
+    <button onclick="buy()">BUY</button>
+    <button onclick="closePopup()">Close</button> 
+  </div>
+</div>
+
+<script>
+  let seatSelect = [];
+
+  function seatClick(seat) {
+    if (seat.classList.contains("booked")) return;
+
+    const seatId = seat.id;
+
+    if (seat.classList.contains("selected")) {
+      seat.classList.remove("selected");
+      seat.classList.add("available");
+      seatSelect = seatSelect.filter(id => id !== seatId);
+    } else {
+      seat.classList.remove("available");
+      seat.classList.add("selected");
+      seatSelect.push(seatId);
+    }
+
+    console.log(seatSelect);
+  }
+
+  function seatSubmit() {
+    if (seatSelect.length === 0) {
+      alert("Please select at least one seat");
+      return;
+    }
+
+    seatSelect.forEach(seatID => {
+      const seat = document.getElementById(seatID);
+      if (seat) {
+        seat.classList.remove("selected");
+        seat.classList.add("booked");
+        document.getElementById("popup").style.display = "flex"
+      }
+    });
+
+    
+    
+  }
+  function buy(){
+    
+    alert("You have successfully booked seat(s): " + seatSelect.join(", "));
+  seatSelect = [];
+  document.getElementById("popup").style.display = "none";
+  }
+  function closePopup() {
+  document.getElementById("popup").style.display = "none"; 
+}
+</script>
+
+</body>
+</html>

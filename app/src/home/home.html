@@ -1,70 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        .bus_seat {
-            width: 50px;
-            height: 50px;
-            border: 2px solid #000;
-            margin: 10px;
-            display: inline-block;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bus Booking System</title>
 
-    </style>
+<link rel="stylesheet" href="/home/styles.css">
+
 </head>
 <body>
-    <div style="display: flex;flex-direction: column;">
-        <h1 style="display: flex; justify-content: center;">BUS BOOKING SYSTEM</h1>
 
-        <div>
-            <div class="bus_seat" onclick="seatClick(this)" id ="1">
+<header>
+  BUS BOOKING SYSTEM
+</header>
 
-            </div>
-            <div class="bus_seat"onclick="seatClick(this)" id ="2">
-
-            </div>
-            <div class="bus_seat"onclick="seatClick(this)" id="3">
-                
-            </div>
-            <div class="bus_seat" onclick="seatClick(this)" id="4">
-
-            </div>
-            <button id = "submit" name ="submit" onclick="seatSubmit()">Submit</button>
-        </div>
+<div class="container">
+  <div class= "buses">
+    <div class = "bus_available" >
+      <h1> KTM to PKR</h1>
+      <p> BUS specs: DELUXE</p>
+      <p> duration: 10hrs</p>
+      <p> price: 1200rs</p>
+      <button onclick="buy()">Buy now</button>
+      
     </div>
+    <div class = "bus_available">
+      <h1>PKR TO KTM</h1>
+      <p> BUS specs: DELUXE</p>
+      <p> duration: 10hrs</p>
+      <p> price: 1200rs</p>
+      <button onclick="buy()">Buy now</button>
+    </div>
+    <div class = "bus_available">
+      <h1> BIR TO KTM</h1>
+      <p> BUS specs: DELUXE</p>
+      <p> duration: 10hrs</p>
+      <p> price: 1200rs</p>
+      <button onclick="buy()">Buy now</button>
+    </div>
+    <div class = "bus_available">
+      <h1> DHA TO LUK</h1>
+      <p> BUS specs: DELUXE</p>
+      <p> duration: 10hrs</p>
+      <p> price: 1200rs</p>
+      <button onclick="buy()">Buy now</button>
+    </div>
+  </div>
+</div>
 
-    <script>
-        let seatSelect = [];
-        function seatClick(Clicked){
-            const seatId = Clicked.id;
-            const change = document.getElementById(seatId);
-            if (change.style.backgroundColor == "yellow"){
-                change.style.backgroundColor = "white";
-                seatSelect = seatSelect.filter(id => id !== seatId);
+<script>
 
-                console.log(seatSelect);
-            }
+  function buy(){
+    
+  }
+  let seatSelect = [];
 
-            else{
-                change.style.backgroundColor = "yellow";
-                seatSelect.push(seatId);
-                console.log(seatSelect);
-            }
-            
-        }
-        function seatSubmit(){
-            seatSelect.forEach(seatID => {
-                const seat = document.getElementById(seatID);
-                if (seat){
-                    seat.style.backgroundColor = "red";
-                }
-                text = "you have successfully booked seat" + seatSelect;
-                alert(text);
-            });
-        }
-    </script>
+  function seatClick(seat) {
+    if (seat.classList.contains("booked")) return;
+
+    const seatId = seat.id;
+
+    if (seat.classList.contains("selected")) {
+      seat.classList.remove("selected");
+      seat.classList.add("available");
+      seatSelect = seatSelect.filter(id => id !== seatId);
+    } else {
+      seat.classList.remove("available");
+      seat.classList.add("selected");
+      seatSelect.push(seatId);
+    }
+
+    console.log(seatSelect);
+  }
+
+  function seatSubmit() {
+    if (seatSelect.length === 0) {
+      alert("Please select at least one seat");
+      return;
+    }
+
+    seatSelect.forEach(seatID => {
+      const seat = document.getElementById(seatID);
+      if (seat) {
+        seat.classList.remove("selected");
+        seat.classList.add("booked");
+      }
+    });
+
+    alert("You have successfully booked seat(s): " + seatSelect.join(", "));
+    seatSelect = [];
+  }
+  function buy(){
+    window.location.href = "/tickets";
+  }
+</script>
+
 </body>
 </html>
