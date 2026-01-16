@@ -194,27 +194,28 @@
 
     <!-- Seats -->
     <div class="seats">
-      <div class="bus_seat available" onclick="seatClick(this)" id="1">1</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="2">2</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="3">3</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="4">4</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="5">5</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="6">6</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="7">7</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="8">8</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="9">9</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="10">10</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="11">11</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="12">12</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="13">13</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="14">14</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="15">15</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="16">16</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="17">17</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="18">18</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="19">19</div>
-      <div class="bus_seat available" onclick="seatClick(this)" id="20">20</div>
-    </div>
+  <div class="bus_seat available" id="seat-1" onclick="seatClick(this)">1</div>
+  <div class="bus_seat available" id="seat-2" onclick="seatClick(this)">2</div>
+  <div class="bus_seat available" id="seat-3" onclick="seatClick(this)">3</div>
+  <div class="bus_seat available" id="seat-4" onclick="seatClick(this)">4</div>
+  <div class="bus_seat available" id="seat-5" onclick="seatClick(this)">5</div>
+  <div class="bus_seat available" id="seat-6" onclick="seatClick(this)">6</div>
+  <div class="bus_seat available" id="seat-7" onclick="seatClick(this)">7</div>
+  <div class="bus_seat available" id="seat-8" onclick="seatClick(this)">8</div>
+  <div class="bus_seat available" id="seat-9" onclick="seatClick(this)">9</div>
+  <div class="bus_seat available" id="seat-10" onclick="seatClick(this)">10</div>
+  <div class="bus_seat available" id="seat-11" onclick="seatClick(this)">11</div>
+  <div class="bus_seat available" id="seat-12" onclick="seatClick(this)">12</div>
+  <div class="bus_seat available" id="seat-13" onclick="seatClick(this)">13</div>
+  <div class="bus_seat available" id="seat-14" onclick="seatClick(this)">14</div>
+  <div class="bus_seat available" id="seat-15" onclick="seatClick(this)">15</div>
+  <div class="bus_seat available" id="seat-16" onclick="seatClick(this)">16</div>
+  <div class="bus_seat available" id="seat-17" onclick="seatClick(this)">17</div>
+  <div class="bus_seat available" id="seat-18" onclick="seatClick(this)">18</div>
+  <div class="bus_seat available" id="seat-19" onclick="seatClick(this)">19</div>
+  <div class="bus_seat available" id="seat-20" onclick="seatClick(this)">20</div>
+</div>
+
 
     <button onclick="seatSubmit()">Confirm Booking</button>
     <a class ="back-link" href="/">Go back ← </a>
@@ -242,54 +243,83 @@
 </div>
 
 <script>
-  let seatSelect = [];
+window.onload = async () => {
+  const res = await fetch('/api/seats');
+  const bookedSeats = await res.json();
 
-  function seatClick(seat) {
-    if (seat.classList.contains("booked")) return;
-
-    const seatId = seat.id;
-
-    if (seat.classList.contains("selected")) {
-      seat.classList.remove("selected");
-      seat.classList.add("available");
-      seatSelect = seatSelect.filter(id => id !== seatId);
-    } else {
-      seat.classList.remove("available");
-      seat.classList.add("selected");
-      seatSelect.push(seatId);
+  bookedSeats.forEach(seat => {
+    const seatEl = document.getElementById(`seat-${seat.seat_number}`);
+    if (seatEl) {
+      seatEl.classList.remove('available');
+      seatEl.classList.add('booked');
     }
+  });
+};
 
-    console.log(seatSelect);
-  }
+let seatSelect = [];
 
-  function seatSubmit() {
-    if (seatSelect.length === 0) {
-      alert("Please select at least one seat");
-      return;
-    }
-
-    seatSelect.forEach(seatID => {
-      const seat = document.getElementById(seatID);
-      if (seat) {
-        seat.classList.remove("selected");
+  function seatSubmit() { 
+    if (seatSelect.length === 0) { alert("Please select at least one seat"); return; }
+     seatSelect.forEach(seatID => { 
+      const seat = document.getElementById(seatID); if (seat)
+       { seat.classList.remove("selected");
         seat.classList.add("booked");
-        document.getElementById("popup").style.display = "flex"
-      }
-    });
+         document.getElementById("popup").style.display = "flex" } })
+        }
+function seatClick(seat) {
+  if (seat.classList.contains("booked")) return;
 
-    
-    
+  const seatId = seat.id;
+
+  if (seat.classList.contains("selected")) {
+    seat.classList.remove("selected");
+    seat.classList.add("available");
+    seatSelect = seatSelect.filter(id => id !== seatId);
+  } else {
+    seat.classList.remove("available");
+    seat.classList.add("selected");
+    seatSelect.push(seatId);
   }
-  function buy(){
-    
-    alert("You have successfully booked seat(s): " + seatSelect.join(", "));
-  seatSelect = [];
+
+  console.log(seatSelect);
+}
+
+async function buy() {
+  if (seatSelect.length === 0) {
+    alert("Select seats first");
+    return;
+  }
+
+  const seatNumbers = seatSelect.map(id =>
+    parseInt(id.replace('seat-', ''))
+  );
+
+  const res = await fetch('/api/seats/book', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ seats: seatNumbers })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    seatSelect.forEach(id => {
+      const seat = document.getElementById(id);
+      seat.classList.remove('selected');
+      seat.classList.add('booked');
+    });
+    seatSelect = [];
+    alert('Seats booked successfully');
+  } else {
+    alert('Booking failed');
+  }
+}
+
+function closePopup() {
   document.getElementById("popup").style.display = "none";
-  }
-  function closePopup() {
-  document.getElementById("popup").style.display = "none"; 
 }
 </script>
+
 
 </body>
 </html>

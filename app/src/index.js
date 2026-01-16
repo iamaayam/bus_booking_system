@@ -19,6 +19,36 @@ app.use('/buses', express.static(path.join(__dirname, 'buses')));
 const users = [
   { username: 'admin', password: '1234' }
 ];
+//database seat fetching
+app.get('/api/seats', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT seat_number FROM seats WHERE booked = true'
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch seats' });
+  }
+});
+//book selected seats
+app.post('/api/seats/book', async (req, res) => {
+  const { seats } = req.body; // [1,2,3]
+
+  if (!seats || seats.length === 0) {
+    return res.status(400).json({ error: 'No seats selected' });
+  }
+  try {
+    await pool.query(
+      'UPDATE seats SET booked = true WHERE seat_number = ANY($1)',
+      [seats]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Booking failed' });
+  }
+});
 
 // admin
 app.get('/admin', (req, res) => {
