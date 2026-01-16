@@ -44,14 +44,7 @@ To start the application, run:
 npm start
 ```
 
-### Running Tests
-To execute the test suite, run:
-```
-npm test
-```
+Open http://localhost:3000 with your browser to see the result.
 
-## Contributing
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+You can start editing the page by modifying home/home.html. 
 
-## License
-This project is licensed under the MIT License. See the LICENSE file for details.
