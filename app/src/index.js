@@ -5,84 +5,57 @@ const pool = require('./../db/db.js');
 const app = express();
 const port = process.env.PORT || 3000;
 
-/* Middleware */
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname)));
 
-/* Static files */
-app.use('/home', express.static(path.join(__dirname, 'home')));
-app.use('/signup', express.static(path.join(__dirname, 'signup')));
-app.use('/login', express.static(path.join(__dirname, 'login')));
-app.use('/buses', express.static(path.join(__dirname, 'buses')));
+// DB test
+pool.query('SELECT NOW()', (err, res) => {
+  if (err) {
+    console.error('DB connection error:', err);
+  } else {
+    console.log('DB connected at:', res.rows[0].now);
+  }
+});
 
-/* Dummy users (temporary) */
+// Dummy users
 const users = [
-  { username: 'admin', password: '1234' }
+  { username: "admin", password: "1234" }
 ];
-//database seat fetching
-app.get('/api/seats', async (req, res) => {
-  try {
-    const result = await pool.query(
-      'SELECT seat_number FROM seats WHERE booked = true'
-    );
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to fetch seats' });
-  }
-});
-//book selected seats
-app.post('/api/seats/book', async (req, res) => {
-  const { seats } = req.body; // [1,2,3]
 
-  if (!seats || seats.length === 0) {
-    return res.status(400).json({ error: 'No seats selected' });
-  }
-  try {
-    await pool.query(
-      'UPDATE seats SET booked = true WHERE seat_number = ANY($1)',
-      [seats]
-    );
-    res.json({ success: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Booking failed' });
-  }
-});
-
-// admin
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin', 'admin.html'));
-});
-
-/* Routes */
+// Home
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'home', 'home.html'));
 });
 
+// Signup page
 app.get('/signup', (req, res) => {
   res.sendFile(path.join(__dirname, 'signup', 'signup.html'));
 });
 
+// Login page
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'login', 'login.html'));
 });
 
+// Tickets page
 app.get('/tickets', (req, res) => {
   res.sendFile(path.join(__dirname, 'buses', 'ticket.html'));
 });
 
-/* Auth logic */
+// Signup logic
 app.post('/signup', (req, res) => {
   const { username, password } = req.body;
 
-  const exists = users.find(u => u.username === username);
-  if (exists) return res.send('Username already taken');
+  const userExists = users.find(u => u.username === username);
+  if (userExists) return res.send('Username already taken');
 
   users.push({ username, password });
   res.redirect('/login');
 });
 
+// Login logic
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
@@ -95,13 +68,86 @@ app.post('/login', (req, res) => {
   res.redirect('/');
 });
 
-/* DB check */
-pool.query('SELECT NOW()', (err, result) => {
-  if (err) console.error('DB connection error:', err);
-  else console.log('DB connected at:', result.rows[0].now);
+
+
+// SEAT BOOKING LOGIC
+
+
+// GET seats (auto-release yellow after 1 min)
+
+app.get("/api/seats", async (req, res) => {
+  try {
+    await pool.query(`
+      UPDATE seats
+      SET status = 'available',
+          locked_at = NULL
+      WHERE status = 'locked'
+      AND locked_at < NOW() - INTERVAL '1 minute'
+    `);
+
+    const result = await pool.query(
+      "SELECT seat_number, status FROM seats ORDER BY seat_number"
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch seats" });
+  }
 });
 
-/* Start server */
+// Lock seat (white → yellow)
+app.post("/api/seats/lock", async (req, res) => {
+  const { seat } = req.body;
+
+  try {
+    const result = await pool.query(
+      `
+      UPDATE seats
+      SET status = 'locked',
+          locked_at = NOW()
+      WHERE seat_number = $1
+      AND status = 'available'
+      RETURNING *
+      `,
+      [seat]
+    );
+
+    if (result.rowCount === 0) {
+      return res.json({ success: false });
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
+  }
+});
+
+// Book seats (yellow → red)
+app.post("/api/seats/book", async (req, res) => {
+  const { seats } = req.body;
+
+  try {
+    await pool.query(
+      `
+      UPDATE seats
+      SET status = 'booked',
+          locked_at = NULL
+      WHERE seat_number = ANY($1)
+      AND status = 'locked'
+      `,
+      [seats]
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
+  }
+});
+
+// Start server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
