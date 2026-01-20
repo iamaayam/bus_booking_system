@@ -15,83 +15,42 @@
 </header>
 
 <div class="container">
-  <div class= "buses">
-    <div class = "bus_available" >
-      <h1> KTM to PKR</h1>
-      <p> BUS specs: DELUXE</p>
-      <p> duration: 10hrs</p>
-      <p> price: 1200rs</p>
-      <button onclick="buy()">Buy now</button>
-      
-    </div>
-    <div class = "bus_available">
-      <h1>PKR TO KTM</h1>
-      <p> BUS specs: DELUXE</p>
-      <p> duration: 10hrs</p>
-      <p> price: 1200rs</p>
-      <button onclick="buy()">Buy now</button>
-    </div>
-    <div class = "bus_available">
-      <h1> BIR TO KTM</h1>
-      <p> BUS specs: DELUXE</p>
-      <p> duration: 10hrs</p>
-      <p> price: 1200rs</p>
-      <button onclick="buy()">Buy now</button>
-    </div>
-    <div class = "bus_available">
-      <h1> DHA TO LUK</h1>
-      <p> BUS specs: DELUXE</p>
-      <p> duration: 10hrs</p>
-      <p> price: 1200rs</p>
-      <button onclick="buy()">Buy now</button>
-    </div>
-  </div>
+  <div class="buses" id="busContainer"></div>
 </div>
 
+
 <script>
+async function loadBuses() {
+  const res = await fetch("/api/buses");
+  const buses = await res.json();
 
- 
-  let seatSelect = [];
+  const container = document.getElementById("busContainer");
+  container.innerHTML = "";
 
-  function seatClick(seat) {
-    if (seat.classList.contains("booked")) return;
+  buses.forEach(bus => {
+    const div = document.createElement("div");
+    div.className = "bus_available";
 
-    const seatId = seat.id;
+    div.innerHTML = `
+      <h1>${bus.bus_name}</h1>
+      <p>BUS specs: ${bus.bus_type}</p>
+      <p>Duration: ${bus.duration}</p>
+      <p>Price: ${bus.price} rs</p>
+      <button onclick="buy(${bus.id})">Buy now</button>
+    `;
 
-    if (seat.classList.contains("selected")) {
-      seat.classList.remove("selected");
-      seat.classList.add("available");
-      seatSelect = seatSelect.filter(id => id !== seatId);
-    } else {
-      seat.classList.remove("available");
-      seat.classList.add("selected");
-      seatSelect.push(seatId);
-    }
+    container.appendChild(div);
+  });
+}
 
-    console.log(seatSelect);
-  }
+function buy(busId) {
+  localStorage.setItem("selectedBusId", busId);
+  window.location.href = "/tickets";
+}
 
-  function seatSubmit() {
-    if (seatSelect.length === 0) {
-      alert("Please select at least one seat");
-      return;
-    }
-
-    seatSelect.forEach(seatID => {
-      const seat = document.getElementById(seatID);
-      if (seat) {
-        seat.classList.remove("selected");
-        seat.classList.add("booked");
-      }
-    });
-
-    alert("You have successfully booked seat(s): " + seatSelect.join(", "));
-    seatSelect = [];
-  }
-  function buy(){
-    window.location.href = "/tickets";
-  }
+window.onload = loadBuses;
 </script>
+
 
 </body>
 </html>

@@ -69,6 +69,26 @@ app.post('/login', (req, res) => {
 });
 
 
+// buses logic
+app.get("/api/buses", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        id,
+        bus_name,
+        bus_type,
+        duration,
+        price
+      FROM buses
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch buses" });
+  }
+});
+
 
 // SEAT BOOKING LOGIC
 
