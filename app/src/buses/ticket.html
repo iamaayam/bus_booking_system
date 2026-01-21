@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bus Booking System</title>
-
-  <style>
+  <link rel="stylesheet" href="../styles/tickets.css">
+  <script src="/buses/tickets.js" ></script>
+  <!-- <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -169,7 +170,7 @@
 .payment_option:hover {
   background-color: #ddd;
 }
-  </style>
+  </style> -->
 </head>
 <body>
 
@@ -180,10 +181,10 @@
 <div class="container">
   <div class="bus-box">
 
-    <div class="bus-title">
-      Kathmandu → Pokhara <br>
-      <small>Deluxe Bus | 7:00 AM</small>
+    <div class="bus-title" id="busTitle">
+      Loading bus details...
     </div>
+
 
     
     <div class="legend">
@@ -241,11 +242,29 @@
     <button onclick="closePopup()">Close</button> 
   </div>
 </div>
+<!-- <script>
+const busId = localStorage.getItem("selectedBusId");
 
-<script>
+if (!busId) {
+  alert("No bus selected");
+  window.location.href = "/";
+}
 
 window.onload = async () => {
-  const res = await fetch('/api/seats');
+  const busId = localStorage.getItem("selectedBusId");
+
+  //  Load bus details 
+  const busRes = await fetch(`/api/bus/${busId}`);
+  const bus = await busRes.json();
+
+  document.getElementById("busTitle").innerHTML = `
+    ${bus.bus_name} <br>
+    <small>${bus.bus_type} | ${bus.duration}</small>
+  `;
+
+
+  // Load seats
+  const res = await fetch(`/api/seats?bus_id=${busId}`);
   const seats = await res.json();
 
   seats.forEach(seat => {
@@ -268,7 +287,6 @@ window.onload = async () => {
 
 let seatSelect = [];
 
-
 async function seatClick(seat) {
   if (
     seat.classList.contains("booked") ||
@@ -277,11 +295,13 @@ async function seatClick(seat) {
 
   const seatId = parseInt(seat.id);
 
-  
   const res = await fetch('/api/seats/lock', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ seat: seatId })
+    body: JSON.stringify({
+      bus_id: busId,
+      seat: seatId
+    })
   });
 
   const data = await res.json();
@@ -296,8 +316,6 @@ async function seatClick(seat) {
   seatSelect.push(seatId);
 }
 
-
-
 function seatSubmit() { 
   if (seatSelect.length === 0) {
     alert("Please select at least one seat");
@@ -308,12 +326,10 @@ function seatSubmit() {
     const seat = document.getElementById(seatID);
     if (seat) {
       seat.classList.remove("selected");
-      
       document.getElementById("popup").style.display = "flex";
     }
   });
 }
-
 
 async function buy() {
   if (seatSelect.length === 0) {
@@ -326,7 +342,10 @@ async function buy() {
   const res = await fetch('/api/seats/book', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ seats: seatNumbers })
+    body: JSON.stringify({
+      bus_id: busId,
+      seats: seatNumbers
+    })
   });
 
   const data = await res.json();
@@ -341,7 +360,6 @@ async function buy() {
 
     seatSelect = [];
     alert('Seats booked successfully');
-    
     document.getElementById("popup").style.display = "none";
   } else {
     alert('Booking failed');
@@ -351,7 +369,7 @@ async function buy() {
 function closePopup() {
   document.getElementById("popup").style.display = "none";
 }
-</script>
+</script> -->
 
 
 </body>

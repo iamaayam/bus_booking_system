@@ -24,64 +24,52 @@ const users = [
   { username: "admin", password: "1234" }
 ];
 
-// Home
+// Pages
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'home', 'home.html'));
 });
 
-// Signup page
 app.get('/signup', (req, res) => {
   res.sendFile(path.join(__dirname, 'signup', 'signup.html'));
 });
 
-// Login page
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'login', 'login.html'));
 });
 
-// Tickets page
 app.get('/tickets', (req, res) => {
   res.sendFile(path.join(__dirname, 'buses', 'ticket.html'));
 });
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin', 'admin.html'));
+});
 
-// Signup logic
+// Auth
 app.post('/signup', (req, res) => {
   const { username, password } = req.body;
-
-  const userExists = users.find(u => u.username === username);
-  if (userExists) return res.send('Username already taken');
-
+  if (users.find(u => u.username === username)) {
+    return res.send('Username already taken');
+  }
   users.push({ username, password });
   res.redirect('/login');
 });
 
-// Login logic
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-
   const user = users.find(
     u => u.username === username && u.password === password
   );
-
   if (!user) return res.send('Invalid username or password');
-
   res.redirect('/');
 });
 
-
-// buses logic
+// ---------------- BUS LIST ----------------
 app.get("/api/buses", async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT 
-        id,
-        bus_name,
-        bus_type,
-        duration,
-        price
+      SELECT id, bus_name, bus_type, duration, price
       FROM buses
     `);
-
     res.json(result.rows);
   } catch (err) {
     console.error(err);
@@ -90,13 +78,44 @@ app.get("/api/buses", async (req, res) => {
 });
 
 
-// SEAT BOOKING LOGIC
 
+// Get single bus details
+app.get("/api/bus/:id", async (req, res) => {
+  const { id } = req.params;
 
-// GET seats (auto-release yellow after 1 min)
-
-app.get("/api/seats", async (req, res) => {
   try {
+    const result = await pool.query(
+      `
+      SELECT bus_name, bus_type, duration
+      FROM buses
+      WHERE id = $1
+      `,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Bus not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch bus details" });
+  }
+});
+
+// ---------------- SEATS ----------------
+
+// Get seats for a bus + auto unlock expired locks
+app.get("/api/seats", async (req, res) => {
+  const { bus_id } = req.query;
+
+  if (!bus_id) {
+    return res.status(400).json({ error: "bus_id is required" });
+  }
+
+  try {
+    // Auto-release expired locks (GLOBAL, SAFE)
     await pool.query(`
       UPDATE seats
       SET status = 'available',
@@ -105,8 +124,15 @@ app.get("/api/seats", async (req, res) => {
       AND locked_at < NOW() - INTERVAL '1 minute'
     `);
 
+    // Fetch seats for specific bus
     const result = await pool.query(
-      "SELECT seat_number, status FROM seats ORDER BY seat_number"
+      `
+      SELECT seat_number, status
+      FROM seats
+      WHERE bus_id = $1
+      ORDER BY seat_number
+      `,
+      [bus_id]
     );
 
     res.json(result.rows);
@@ -118,7 +144,11 @@ app.get("/api/seats", async (req, res) => {
 
 // Lock seat (white → yellow)
 app.post("/api/seats/lock", async (req, res) => {
-  const { seat } = req.body;
+  const { seat, bus_id } = req.body;
+
+  if (!bus_id || !seat) {
+    return res.status(400).json({ success: false });
+  }
 
   try {
     const result = await pool.query(
@@ -126,11 +156,12 @@ app.post("/api/seats/lock", async (req, res) => {
       UPDATE seats
       SET status = 'locked',
           locked_at = NOW()
-      WHERE seat_number = $1
+      WHERE bus_id = $1
+      AND seat_number = $2
       AND status = 'available'
-      RETURNING *
+      RETURNING seat_number
       `,
-      [seat]
+      [bus_id, seat]
     );
 
     if (result.rowCount === 0) {
@@ -146,7 +177,11 @@ app.post("/api/seats/lock", async (req, res) => {
 
 // Book seats (yellow → red)
 app.post("/api/seats/book", async (req, res) => {
-  const { seats } = req.body;
+  const { seats, bus_id } = req.body;
+
+  if (!bus_id || !Array.isArray(seats)) {
+    return res.status(400).json({ success: false });
+  }
 
   try {
     await pool.query(
@@ -154,10 +189,11 @@ app.post("/api/seats/book", async (req, res) => {
       UPDATE seats
       SET status = 'booked',
           locked_at = NULL
-      WHERE seat_number = ANY($1)
+      WHERE bus_id = $1
+      AND seat_number = ANY($2)
       AND status = 'locked'
       `,
-      [seats]
+      [bus_id, seats]
     );
 
     res.json({ success: true });
