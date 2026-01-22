@@ -40,8 +40,79 @@ app.get('/login', (req, res) => {
 app.get('/tickets', (req, res) => {
   res.sendFile(path.join(__dirname, 'buses', 'ticket.html'));
 });
+
+//admin
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin', 'admin.html'));
+});
+
+app.get("/api/admin/seats", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        b.id AS bus_id,
+        b.bus_name,
+        s.seat_number,
+        s.status
+      FROM seats s
+      JOIN buses b ON b.id = s.bus_id
+      ORDER BY b.bus_name, s.seat_number
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch admin seats" });
+  }
+});
+
+// Make seat available (admin reject)
+app.post("/api/admin/make-available", async (req, res) => {
+  const { busId, busName, seatNumber } = req.body;
+
+  try {
+    // 1. store soft delete
+    await pool.query(
+      `
+      INSERT INTO deleted (bus_name, seat_number)
+      VALUES ($1, $2)
+      `,
+      [busName, seatNumber]
+    );
+
+    // 2. free the seat
+    await pool.query(
+      `
+      UPDATE seats
+      SET status = 'available',
+          locked_at = NULL
+      WHERE bus_id = $1
+      AND seat_number = $2
+      `,
+      [busId, seatNumber]
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
+  }
+});
+
+// View deleted history
+app.get("/api/admin/deleted", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT bus_name, seat_number, deleted_at
+      FROM deleted
+      ORDER BY deleted_at DESC
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch deleted history" });
+  }
 });
 
 // Auth

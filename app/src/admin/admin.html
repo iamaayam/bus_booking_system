@@ -1,4 +1,4 @@
-<!doctype html>
+<!-- <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -8,73 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel ="stylesheet" href="/admin/admin.css">
-  <!-- <style>
-    :root{
-      --bg:#f6f8fb;
-      --card:#ffffff;
-      --muted:#6b7280;
-      --accent:#0f172a;
-      --accent-2:#0ea5a4;
-      --success:#10b981;
-      --danger:#ef4444;
-      --glass: rgba(15,23,42,0.06);
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:#0f172a}
-
-    /* Layout */
-    .app{
-      display:flex;min-height:100vh;
-    }
-    aside.sidebar{
-      width:260px;background:linear-gradient(180deg,#071028 0%, #0f172a 100%);color:#fff;padding:22px;display:flex;flex-direction:column;gap:18px
-    }
-    .brand{display:flex;align-items:center;gap:10px}
-    .logo{width:44px;height:44px;border-radius:8px;background:linear-gradient(90deg,#06b6d4,#0ea5a4);display:flex;align-items:center;justify-content:center;font-weight:700;color:#042027}
-    .brand h1{font-size:16px;margin:0}
-    nav.menu{display:flex;flex-direction:column;gap:6px;margin-top:6px}
-    nav a{display:flex;gap:10px;align-items:center;padding:10px;border-radius:10px;color:#bcd2d9;text-decoration:none}
-    nav a.active, nav a:hover{background:rgba(255,255,255,0.06);color:#fff}
-    nav a .ico{width:18px;text-align:center}
-
-    .bottom-info{margin-top:auto;font-size:13px;color:#9aa6b2}
-
-    main.content{flex:1;padding:28px}
-    .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px}
-    .topbar h2{margin:0;font-size:20px}
-    .search{display:flex;gap:8px;align-items:center}
-    .search input{padding:8px 12px;border-radius:8px;border:1px solid #e6edf3;background:var(--card)}
-
-    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;margin-top:20px}
-    .card{grid-column:span 3;background:var(--card);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(11,15,29,0.06)}
-    .big{grid-column:span 8}
-    .full{grid-column:span 12}
-    .card h3{margin:0;font-size:13px;color:var(--muted)}
-    .metric{font-size:22px;font-weight:700;margin-top:8px}
-
-    /* Analytics cards */
-    .charts{display:flex;gap:18px}
-    canvas{background:transparent}
-
-    /* User management */
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px;text-align:left;border-bottom:1px solid #eef2f6}
-    th{font-size:13px;color:var(--muted)}
-    .badge{padding:6px 10px;border-radius:999px;font-size:12px}
-    .badge.active{background:rgba(16,185,129,0.12);color:var(--success)}
-    .badge.blocked{background:rgba(239,68,68,0.08);color:var(--danger)}
-
-    .btn{display:inline-block;padding:8px 12px;border-radius:8px;background:#06122a;color:#fff;text-decoration:none;border:none;cursor:pointer}
-    .btn.ghost{background:transparent;color:var(--accent)}
-
-    /* Responsive */
-    @media (max-width:900px){
-      aside.sidebar{display:none}
-      .grid{grid-template-columns:repeat(6,1fr)}
-      .card{grid-column:span 6}
-      .big{grid-column:span 6}
-    }
-  </style> -->
+ 
 </head>
 <body>
   <div class="app">
@@ -108,7 +42,7 @@
         </div>
       </div>
 
-      <!-- Dashboard grid -->
+      
       <div id="dashboard" class="grid section">
         <div class="card">
           <h3>Total Bookings</h3>
@@ -156,7 +90,7 @@
 
       </div>
 
-      <!-- Analytics section -->
+      
       <div id="analytics" class="grid section" style="display:none">
         <div class="card full">
           <h3>Traffic & Revenue Overview</h3>
@@ -174,7 +108,7 @@
         </div>
       </div>
 
-      <!-- Users management -->
+      
       <div id="users" class="grid section" style="display:none">
         <div class="card full">
           <h3>User Management</h3>
@@ -191,8 +125,46 @@
     </main>
   </div>
 
-  <!-- ChartsJS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="/admin/admin.js" ></script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+</head>
+<body>
+
+<h2>All Buses & Seats</h2>
+
+<table border="1" cellpadding="6">
+  <thead>
+    <tr>
+      <th>Bus</th>
+      <th>Seat</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="seatTable"></tbody>
+</table>
+
+<hr>
+
+<h2>Deleted / Rejected Seats</h2>
+
+<table border="1" cellpadding="6">
+  <thead>
+    <tr>
+      <th>Bus</th>
+      <th>Seat</th>
+      <th>Deleted At</th>
+    </tr>
+  </thead>
+  <tbody id="deletedTable"></tbody>
+</table>
+
+<script src="/admin/admin.js"></script>
 </body>
 </html>
