@@ -65,6 +65,33 @@ app.get("/api/admin/seats", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch admin seats" });
   }
 });
+app.post("/api/admin/seats/force-book", async (req, res) => {
+  const { busId, seat } = req.body;
+
+  try {
+    const result = await pool.query(
+      `
+      UPDATE seats
+      SET status = 'booked',
+          locked_at = NULL
+      WHERE bus_id = $1
+      AND seat_number = $2
+      RETURNING *
+      `,
+      [busId, seat]
+    );
+
+    if (result.rowCount === 0) {
+      return res.json({ success: false });
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
+  }
+});
+
 
 // Make seat available (admin reject)
 app.post("/api/admin/make-available", async (req, res) => {

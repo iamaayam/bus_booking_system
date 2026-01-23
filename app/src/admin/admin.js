@@ -167,7 +167,14 @@ async function loadSeats() {
             ? `<button onclick="makeAvailable(${row.bus_id}, '${row.bus_name}', ${row.seat_number})">
                  Make Available
                </button>`
-            : "-"
+            : ""
+        }
+        ${
+          row.status === "available"
+            ? `<button onclick="forceBook(${row.bus_id}, ${row.seat_number})">
+                 Force Book
+               </button>`
+            : ""
         }
       </td>
     `;
@@ -175,6 +182,7 @@ async function loadSeats() {
     table.appendChild(tr);
   });
 }
+
 
 async function makeAvailable(busId, busName, seatNumber) {
   if (!confirm("Make this seat available again?")) return;
@@ -188,6 +196,26 @@ async function makeAvailable(busId, busName, seatNumber) {
   loadSeats();
   loadDeleted();
 }
+async function forceBook(busId, seatNumber) {
+  if (!confirm("Force book this seat?")) return;
+
+  const res = await fetch("/api/admin/seats/force-book", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ busId, seat: seatNumber })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    alert("Seat force-booked");
+    loadSeats();
+  } else {
+    alert("Cannot force book this seat");
+  }
+}
+
+
 
 async function loadDeleted() {
   const res = await fetch("/api/admin/deleted");
